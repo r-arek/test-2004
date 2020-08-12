@@ -1,9 +1,9 @@
 
 os: linux
 dist: focal
-arch: arm64-graviton2
-group: edge
-virt: lxd
+#arch: arm64-graviton2
+#group: edge
+#virt: lxd
 
 jobs:
   include:
@@ -35,11 +35,6 @@ jobs:
     script:
       - go run ./hello.go
  
-  - language: php
-    php: '7.4.9'
-    script:
-      - php hello.php
-
   - language: csharp
     script:
       - csc hello.cs
