@@ -1,18 +1,148 @@
+
 os: linux
 dist: focal
 arch: arm64-graviton2
 group: edge
-virt: lxd
+virt: vm
 
 jobs:
   include:
+  - language: ruby
+    script:
+      - ruby hello.rb
+
   - language: cpp
     compiler: clang
     script:
       - g++ -nostartfiles main.cpp
+
+  - language: python
+    script:
+      - python hello.py
 
   - language: node_js
     node_js:
       - node
     script:
       - node hello.js
+
+  - language: java
+    jdk: openjdk10
+    script:
+      - mvn clean install
+
+  - language: go
+    script:
+      - go run ./hello.go
+ 
+  - language: php
+    php: '7.4.9'
+    script:
+      - php hello.php
+
+  - language: csharp
+    script:
+      - csc hello.cs
+      - mono hello.exe
+
+  - language: perl
+    perl:
+    - "5.33.0"
+    script:
+      - perl helloworld.pl
+
+  - language: perl
+    perl:
+    - "5.32.0"
+    script:
+      - perl helloworld.pl
+
+  - language: erlang
+    otp_release:
+    - 22.3
+    script:
+    - date
+    - erl -noshell -eval 'io:fwrite("Hello, World!\n"), init:stop().'
+
+  - language: erlang
+    otp_release:
+    - 23.0
+    script:
+    - date
+    - erl -noshell -eval 'io:fwrite("Hello, World!\n"), init:stop().'
+
+  - language: python
+    python:
+    - 3.7
+    script:
+    - python python_hw.py
+
+  - language: python
+    python:
+    - 3.8
+    script:
+    - python python_hw.py
+
+  - language: python
+    python:
+    - nightly
+    script:
+    - python python_hw.py
+
+  - before_install:
+    - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.4.0.deb && sudo dpkg -i --force-confnew elasticsearch-5.4.0.deb && sudo service elasticsearch restart
+    services:
+    - elasticsearch
+    script:
+    - systemctl status elasticsearch
+    - sleep 10
+    - curl 127.0.0.1:9200
+
+  - services:
+    - elasticsearch
+    script:
+    - systemctl status elasticsearch
+    - sleep 10
+    - curl 127.0.0.1:9200
+
+  - services:
+    - couchdb
+    script:
+    - sleep 20
+    - systemctl status couchdb
+    - netstat -nltp
+
+  - services:
+    - mongodb
+    before_script:
+    - mongo mydb_test --eval 'db.createUser({user:"travis",pwd:"test",roles:["readWrite"]});'
+    script:
+    - sleep 10
+    - systemctl status mongodb
+    - netstat -nltp
+
+  - services:
+    - postgresql
+    before_script:
+    - psql -c 'create database travis_ci_test;' -U postgres
+    script:
+    - systemctl status postgresql@12-main
+    - netstat -nltp | grep 5432
+
+  - services:
+    - mysql
+    script:
+    - date
+    - sleep 12
+    - systemctl status mysql
+    - mysql -e 'CREATE DATABASE myapp_test;'
+
+  - addons:
+      mariadb: '10.3'
+    script:
+    - sleep 12
+    - systemctl status mysql
+    - systemctl status mariadb
+    - netstat -nltp
+    - mysql -e 'CREATE DATABASE myapp_test;'
+    - sudo mysql -e 'CREATE DATABASE myapp_test2;'
